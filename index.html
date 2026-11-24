@@ -96,7 +96,6 @@ rt{font-size:.5em}
 .card small{font-size:16px;color:#567}
 .card.sel{border-color:#f39a1e;background:#fff2d6;box-shadow:0 0 0 4px #f39a1e55}
 .mode .card{min-width:200px}
-#pedals.hard #brake{left:auto;right:190px}
 #wheelZone{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(560px,48vw);height:36vh;display:none;touch-action:none}
 #pedals.hard #wheelZone{display:block}
 #wheelZone .hint{position:absolute;top:0;left:50%;transform:translateX(-50%);background:rgba(20,30,40,.7);color:#fff;font-size:20px;font-weight:700;padding:4px 16px;border-radius:14px;white-space:nowrap}
@@ -121,7 +120,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
 </script>
 </head>
 <body>
-<!-- build: 2026-11-24c -->
+<!-- build: 2026-11-24d -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="pax">おきゃくさん <span id="paxN">0</span><div class="icons" id="paxIcons"></div></div>
@@ -139,7 +138,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <button id="accel" class="pedal pe"><span class="pic">⬆️</span>アクセル</button>
   </div>
   <div id="speed"><span id="spd">0</span> <small>km/h</small></div>
-  <div id="ver">v2026-11-24c</div>
+  <div id="ver">v2026-11-24d</div>
 </div>
 
 <div id="title" class="ov show">
@@ -184,7 +183,7 @@ import * as THREE from 'three';
 
 // ================= 調整値 =================
 const CFG = {
-  version: 'v2026-11-24c',
+  version: 'v2026-11-24d',
   stops: 2,            // バス停の数（最後が終点）
   stopGap: 170,        // バス停の間隔 m
   startPad: 30,        // スタートから最初のバス停までの余白（stopGapに足す）
@@ -903,14 +902,14 @@ function howtoHTML(){
     ['🚌', 'バスは じどうで はしるよ。バスていに つくと とまるよ。'],
     ['👆', 'ひかっている ボタンを おそう。<br>' + m('b-open','🚪あける') + ' → ' + m('b-close','🚪しめる') + ' → ' + m('b-go','しゅっぱつ▶')],
     ['🙂', 'おきゃくさんを のせて、<ruby>終点<rt>しゅうてん</rt></ruby>まで はこぼう！'],
-  ].map(([i, t]) => `<div class="st"><span class="ic">${i}</span><span>${t}</span></div>`).join('');
+  ].map(([i, t]) => `<div class="st"><span>${t}</span></div>`).join(''); // 左のアイコンは表示しない
   return [
     ['🦶', m('b-go" style="background:#2a8a3e','⬆️アクセル') + ' で すすむ。' + m('b-go" style="background:#d8392b','🛑ブレーキ') + ' で とまる。<br>ブレーキは ずっと つよく ふむと、おきゃくさんが よろけるよ。'],
     ...(G.mode === 'hard' ? [['🛞', 'ハンドルに さわって くるっと まわそう。<br>カーブでは まがる ほうへ まわしてね。てを はなすと まっすぐに もどるよ。ひだりの しゃせんから はみださないように！']] : []),
     ['🚏', 'バスていの きいろい せんに ぴったり とめよう。⭐⭐⭐'],
     ['🔴', 'あかしんごうでは とまろう。'],
     ['👆', 'とまったら ' + m('b-open','🚪あける') + ' → ' + m('b-close','🚪しめる') + ' → ' + m('b-chk','👉みぎよし') + m('b-chk','👈ひだりよし') + ' → ' + m('b-go','しゅっぱつ▶')],
-  ].map(([i, t]) => `<div class="st"><span class="ic">${i}</span><span>${t}</span></div>`).join('');
+  ].map(([i, t]) => `<div class="st"><span>${t}</span></div>`).join(''); // 左のアイコンは表示しない
 }
 function openHowto(midGame){
   $('howSteps').innerHTML = howtoHTML();
