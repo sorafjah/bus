@@ -72,7 +72,20 @@ rt{font-size:.5em}
 .ov.show{display:flex}
 .ov.dim{background:rgba(10,30,40,.55)}
 .panel{background:#fffdf3;border-radius:28px;border:5px solid #1f7a4d;padding:22px 30px;max-width:900px;width:100%;
-  box-shadow:0 12px 0 rgba(0,0,0,.18);color:#213;text-align:center;max-height:100%;overflow:hidden}
+  box-shadow:0 12px 0 rgba(0,0,0,.18);color:#213;text-align:center;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column}
+/* 遊び方：説明だけをスクロールし、「はじめる」はいつも下に見えるようにする */
+#howto .panel{overflow:hidden}
+#howSteps{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 4px;width:100%}
+#howto .row{flex:none;align-items:center}
+#howto #startBtn{margin-top:10px}
+@media (max-height:860px){
+  .panel{padding:14px 22px}
+  .panel h1{font-size:34px;margin:0 0 6px} .panel h2{font-size:28px;margin:0 0 6px}
+  .steps{font-size:20px;line-height:1.45;gap:7px} .steps .st .ic{font-size:30px;min-width:42px}
+  .card{min-height:84px} .card .ic{font-size:32px}
+  .ov .bigbtn{min-height:78px;font-size:30px;padding:10px 28px}
+}
 .panel h1{margin:4px 0 12px;font-size:44px;color:#1f7a4d;line-height:1.3}
 .panel h2{margin:4px 0 10px;font-size:34px;color:#1f7a4d}
 .lab{font-size:22px;font-weight:700;margin:10px 0 6px;color:#456}
@@ -108,7 +121,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
 </script>
 </head>
 <body>
-<!-- build: 2026-11-24 -->
+<!-- build: 2026-11-24c -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="pax">おきゃくさん <span id="paxN">0</span><div class="icons" id="paxIcons"></div></div>
@@ -126,7 +139,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <button id="accel" class="pedal pe"><span class="pic">⬆️</span>アクセル</button>
   </div>
   <div id="speed"><span id="spd">0</span> <small>km/h</small></div>
-  <div id="ver">v2026-11-24</div>
+  <div id="ver">v2026-11-24c</div>
 </div>
 
 <div id="title" class="ov show">
@@ -149,9 +162,9 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <h2>あそびかた</h2>
     <div class="steps" id="howSteps"></div>
     <div class="row">
+      <button id="toMenu" class="sub" style="display:none">さいしょの がめんへ</button>
       <button id="startBtn" class="bigbtn b-go">はじめる ▶</button>
     </div>
-    <div class="row"><button id="toMenu" class="sub" style="display:none">さいしょの がめんへ</button></div>
   </div>
 </div>
 
@@ -171,7 +184,7 @@ import * as THREE from 'three';
 
 // ================= 調整値 =================
 const CFG = {
-  version: 'v2026-11-24',
+  version: 'v2026-11-24c',
   stops: 2,            // バス停の数（最後が終点）
   stopGap: 170,        // バス停の間隔 m
   startPad: 30,        // スタートから最初のバス停までの余白（stopGapに足す）
@@ -207,7 +220,13 @@ const CFG = {
 document.addEventListener('gesturestart', e => e.preventDefault());
 let lastTouchEnd = 0;
 document.addEventListener('touchend', e => { const n = Date.now(); if (n - lastTouchEnd < 300) e.preventDefault(); lastTouchEnd = n; }, { passive: false });
-document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => {
+  // 説明画面など、中身があふれてスクロールできる所だけはスクロールを許す
+  for (let el = e.target; el && el !== document.body; el = el.parentElement) {
+    if (el.scrollHeight > el.clientHeight + 2 && /(auto|scroll)/.test(getComputedStyle(el).overflowY)) return;
+  }
+  e.preventDefault();
+}, { passive: false });
 document.addEventListener('contextmenu', e => e.preventDefault());
 
 // ================= 乱数 =================
@@ -722,8 +741,11 @@ function updateSignals(dt, prevS){
       if (G.bus.v < 0.1 && d < 30 && d > -1) { sig.wait += dt; if (sig.wait > CFG.redWait) { setLight(sig, 'green'); SFX.ok(); } }
     }
     if (prevS < sig.s && G.bus.s >= sig.s && sig.state !== 'green') {
-      setLight(sig, 'green');
-      if (G.mode !== 'easy') { G.sigViol++; SFX.bad(); showMsg('あかしんごう だったよ<br>つぎは とまろうね', 2.2); }
+      if (sig.state === 'red' && G.mode !== 'easy') {
+        // 赤信号で止まれなかったら、信号の手前にもどってやり直し
+        G.sigViol++; SFX.bad(); showMsg('🔴 あかしんごう！<br>もどって やりなおそう', 2.6);
+        G.bus.s = sig.s - 40; G.bus.v = 0; G.pedal.bHold = 0; G.psi = 0; sig.wait = 0;
+      } else setLight(sig, 'green'); // 黄色で通りすぎたときは そのまま
     }
   }
 }
