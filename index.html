@@ -120,7 +120,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
 </script>
 </head>
 <body>
-<!-- build: 2026-11-24d -->
+<!-- build: 2026-11-24e -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="pax">おきゃくさん <span id="paxN">0</span><div class="icons" id="paxIcons"></div></div>
@@ -138,7 +138,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <button id="accel" class="pedal pe"><span class="pic">⬆️</span>アクセル</button>
   </div>
   <div id="speed"><span id="spd">0</span> <small>km/h</small></div>
-  <div id="ver">v2026-11-24d</div>
+  <div id="ver">v2026-11-24e</div>
 </div>
 
 <div id="title" class="ov show">
@@ -183,7 +183,7 @@ import * as THREE from 'three';
 
 // ================= 調整値 =================
 const CFG = {
-  version: 'v2026-11-24d',
+  version: 'v2026-11-24e',
   stops: 2,            // バス停の数（最後が終点）
   stopGap: 170,        // バス停の間隔 m
   startPad: 30,        // スタートから最初のバス停までの余白（stopGapに足す）
@@ -941,9 +941,11 @@ function newGame(seed){
   document.body.classList.toggle('hardmode', G.mode === 'hard');
   updatePax(); updateBanner(); setState('ready'); updateCamera(0); updateHUD(0);
 }
+// 人数のよみかた：1→ひとり、2→ふたり、3いじょうは「〇にん」
+function ninzu(n){ return n === 1 ? 'ひとり' : n === 2 ? 'ふたり' : n + 'にん'; }
 function showResult(){
   setState('result');
-  let h = `<div class="res-list">のせた おきゃくさん</div><div class="big-n">🙂 ${G.carried}にん</div>`;
+  let h = `<div class="res-list">のせた おきゃくさん</div><div class="big-n">🙂 ${ninzu(G.carried)}</div>`;
   if (G.mode !== 'easy') {
     const tot = G.stops.reduce((a, s) => a + s.star, 0);
     h += `<div class="res-list">` + G.stops.map(s => `${s.name}　${'⭐'.repeat(s.star)}`).join('<br>') + `</div>`;
