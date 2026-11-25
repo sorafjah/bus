@@ -120,7 +120,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
 </script>
 </head>
 <body>
-<!-- build: 2026-11-25b -->
+<!-- build: 2026-11-25c -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="pax">おきゃくさん <span id="paxN">0</span><div class="icons" id="paxIcons"></div></div>
@@ -138,7 +138,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <button id="accel" class="pedal pe"><span class="pic">⬆️</span>アクセル</button>
   </div>
   <div id="speed"><span id="spd">0</span> <small>km/h</small></div>
-  <div id="ver">v2026-11-25b</div>
+  <div id="ver">v2026-11-25c</div>
 </div>
 
 <div id="title" class="ov show">
@@ -183,7 +183,7 @@ import * as THREE from 'three';
 
 // ================= 調整値 =================
 const CFG = {
-  version: 'v2026-11-25b',
+  version: 'v2026-11-25c',
   stops: 2,            // バス停の数（最後が終点）
   stopGap: 170,        // バス停の間隔 m
   startPad: 30,        // スタートから最初のバス停までの余白（stopGapに足す）
@@ -724,7 +724,7 @@ function startBoarding(){
   const st = curStop(); if (st.last) st.off = G.aboard;
   G.offQ = st.off; G.onQ = st.waiting.slice(); st.waiting = []; G.bt = 0.3; G.walkers = 0; G.thanked = false;
   st.bellOn = false; G.door = true; setState('boarding');
-  showMsg('🚪 どうぞ', 1.4); G.bt = 1.3; // ドアが開いたら「どうぞ」を見せてから乗り降りを始める
+  if (!st.last) { showMsg('🚪 どうぞ', 1.4); G.bt = 1.3; } // 途中のバス停でドアが開いたら「どうぞ」を見せてから乗り降りを始める（終点では出さない）
 }
 const doorPos = () => pt(G.bus.s - 1.0, CFG.laneOff + G.lat + 1.35);
 function spawnOff(){
