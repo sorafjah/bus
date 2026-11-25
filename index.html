@@ -120,7 +120,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
 </script>
 </head>
 <body>
-<!-- build: 2026-11-24e -->
+<!-- build: 2026-11-25 -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="pax">おきゃくさん <span id="paxN">0</span><div class="icons" id="paxIcons"></div></div>
@@ -138,7 +138,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <button id="accel" class="pedal pe"><span class="pic">⬆️</span>アクセル</button>
   </div>
   <div id="speed"><span id="spd">0</span> <small>km/h</small></div>
-  <div id="ver">v2026-11-24e</div>
+  <div id="ver">v2026-11-25</div>
 </div>
 
 <div id="title" class="ov show">
@@ -183,7 +183,7 @@ import * as THREE from 'three';
 
 // ================= 調整値 =================
 const CFG = {
-  version: 'v2026-11-24e',
+  version: 'v2026-11-25',
   stops: 2,            // バス停の数（最後が終点）
   stopGap: 170,        // バス停の間隔 m
   startPad: 30,        // スタートから最初のバス停までの余白（stopGapに足す）
@@ -249,6 +249,19 @@ const THEMES = {
     names:['もりのいりぐち','たきまえ','おんせんまえ','キャンプじょう','てんぼうだい','ぼくじょうまえ','つりばし','やまのうえ'] },
 };
 const THEME_KEYS = Object.keys(THEMES);
+// 読み上げ用のことば（画面はひらがな、音声は漢字まじり）
+// iPadの読み上げは ひらがなだけの文だと「っ」「ゃ」などの小さい字を うまく読めないことがあるため、
+// 音声には漢字まじりの文を渡す。
+const YOMI = {
+  'えきまえ':'駅前','しやくしょまえ':'市役所前','としょかんまえ':'図書館前','びょういんまえ':'病院前','ゆうびんきょくまえ':'郵便局前',
+  'しょうてんがい':'商店街','スーパーまえ':'スーパー前','こうばんまえ':'交番前','ぶんかセンター':'文化センター','ほんやさんまえ':'本屋さん前',
+  'みなと':'港','うみのえき':'海の駅','すいぞくかんまえ':'水族館前','かいがんどおり':'海岸通り','とうだいまえ':'灯台前',
+  'ヨットハーバー':'ヨットハーバー','つりばまえ':'釣り場前','すなはまこうえん':'砂浜公園',
+  'もりのいりぐち':'森の入口','たきまえ':'滝前','おんせんまえ':'温泉前','キャンプじょう':'キャンプ場','てんぼうだい':'展望台',
+  'ぼくじょうまえ':'牧場前','つりばし':'吊り橋','やまのうえ':'山の上',
+  'まちなか せん':'まちなか線','うみぞい せん':'海沿い線','やまみち せん':'山道線',
+};
+const yomi = t => YOMI[t] || t;
 
 // ================= three 基本 =================
 const canvas = document.getElementById('c');
@@ -590,9 +603,21 @@ const SFX = {
     const g = AC.createGain(); g.gain.value = 0.5; s.connect(f); f.connect(g); g.connect(master); s.start();
   },
 };
+// 日本語の声をはっきり選ぶ（声を指定しないと、日本語以外の声で読まれて小さい字がくずれることがある）
+let jaVoice = null;
+function pickVoice(){
+  try {
+    const vs = speechSynthesis.getVoices().filter(v => /^ja/i.test(v.lang));
+    jaVoice = vs.find(v => v.localService && v.default) || vs.find(v => v.localService) || vs[0] || null;
+  } catch (e) {}
+}
+if (window.speechSynthesis) { pickVoice(); try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch (e) {} }
 function say(text){
   if (!CFG.voice || !window.speechSynthesis) return;
-  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ja-JP'; u.rate = 0.95; speechSynthesis.speak(u); } catch (e) {}
+  try {
+    if (!jaVoice) pickVoice();
+    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ja-JP'; if (jaVoice) u.voice = jaVoice; u.rate = 0.95; speechSynthesis.speak(u);
+  } catch (e) {}
 }
 
 // ================= HUD =================
@@ -635,14 +660,14 @@ onTap($('action'), e => { const b = e.target.closest('[data-act]'); if (b) act(b
 function act(a){
   if (G.paused) return;
   if (a === 'open' && G.state === 'arrived') {
-    SFX.pshh(); say('ドアが ひらきます'); G.doorT = 0; setState('doorOpening');
+    SFX.pshh(); say('ドアが開きます'); G.doorT = 0; setState('doorOpening');
   } else if (a === 'close' && G.state === 'doorOpenIdle') {
-    SFX.pshh(); say('ドアが しまります'); G.doorT = 0; setState('doorClosing');
+    SFX.pshh(); say('ドアが閉まります'); G.doorT = 0; setState('doorClosing');
   } else if ((a === 'right' || a === 'left') && G.state === 'check') {
     SFX.ok(); if (a === 'right') G.chk.r = true; else G.chk.l = true;
     if (G.chk.r && G.chk.l) setState('ready'); else renderActions();
   } else if (a === 'depart' && G.state === 'ready') {
-    SFX.winker(); say('はっしゃします。ごちゅうい ください');
+    SFX.winker(); say('発車します。ご注意ください');
     if (G.atStop) { curStop().done = true; G.ns++; G.atStop = false; updateBanner(); }
     setState('drive');
   }
@@ -699,6 +724,7 @@ function startBoarding(){
   const st = curStop(); if (st.last) st.off = G.aboard;
   G.offQ = st.off; G.onQ = st.waiting.slice(); st.waiting = []; G.bt = 0.3; G.walkers = 0; G.thanked = false;
   st.bellOn = false; G.door = true; setState('boarding');
+  showMsg('🚪 どうぞ', 1.4); G.bt = 1.3; // ドアが開いたら「どうぞ」を見せてから乗り降りを始める
 }
 const doorPos = () => pt(G.bus.s - 1.0, CFG.laneOff + G.lat + 1.35);
 function spawnOff(){
@@ -753,8 +779,8 @@ function driveUpdate(dt){
   const st = curStop(), bus = G.bus;
   if (!st.announced && st.s - bus.s < CFG.announceDist) {
     st.announced = true; decideOff(st); SFX.chime();
-    G.timers.push({ t: 0.9, fn: () => say((st.last ? 'つぎは しゅうてん、' : 'つぎは、') + st.name + ' です') });
-    if (st.off > 0) G.timers.push({ t: 3.4, fn: () => { if (!st.done) { st.bellOn = true; SFX.bell(); say('つぎ とまります'); } } });
+    G.timers.push({ t: 0.9, fn: () => say((st.last ? '次は、終点、' : '次は、') + yomi(st.name) + ' です') });
+    if (st.off > 0) G.timers.push({ t: 3.4, fn: () => { if (!st.done) { st.bellOn = true; SFX.bell(); say('次、止まります'); } } });
     showMsg('🔔 つぎは ' + st.name, 2.0);
   }
   if (G.mode === 'easy') {
@@ -815,7 +841,7 @@ function serviceUpdate(dt){
       if (G.offQ > 0) { spawnOff(); G.offQ--; G.bt = 0.8; }
       else if (G.onQ.length) { const p = G.onQ.shift(); G.actors.push({ p, mode:'toDoor', tx:0, tz:0, t:0 }); G.walkers++; G.bt = 0.7; }
       else if (G.walkers === 0) {
-        if (curStop().last) { G.finT = 0; say('しゅうてんです。ごじょうしゃ ありがとう ございました'); setState('finishing'); }
+        if (curStop().last) { G.finT = 0; say('終点です。ご乗車、ありがとうございました'); setState('finishing'); }
         else setState('doorOpenIdle');
       } else G.bt = 0.1;
     }
@@ -922,7 +948,7 @@ onTap($('goBtn'), () => { initAudio(); $('title').classList.remove('show'); newG
 onTap($('startBtn'), () => {
   initAudio(); if (CFG.voice && window.speechSynthesis) { try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch (e) {} }
   $('howto').classList.remove('show'); G.paused = false;
-  if (G.state === 'ready' && G.frames === 0) { say(THEMES[G.theme].line + '、しゅっぱつ します'); showMsg(THEMES[G.theme].icon + ' ' + THEMES[G.theme].line, 1.8); }
+  if (G.state === 'ready' && G.frames === 0) { say(yomi(THEMES[G.theme].line) + '、出発します'); showMsg(THEMES[G.theme].icon + ' ' + THEMES[G.theme].line, 1.8); }
 });
 onTap($('qBtn'), () => { if (G.state !== 'menu' && G.state !== 'result' && !$('howto').classList.contains('show')) openHowto(true); });
 onTap($('toMenu'), () => { $('howto').classList.remove('show'); toMenu(); });
