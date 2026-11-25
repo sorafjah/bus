@@ -120,7 +120,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
 </script>
 </head>
 <body>
-<!-- build: 2026-11-25c -->
+<!-- build: 2026-11-25d -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="pax">おきゃくさん <span id="paxN">0</span><div class="icons" id="paxIcons"></div></div>
@@ -138,7 +138,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <button id="accel" class="pedal pe"><span class="pic">⬆️</span>アクセル</button>
   </div>
   <div id="speed"><span id="spd">0</span> <small>km/h</small></div>
-  <div id="ver">v2026-11-25c</div>
+  <div id="ver">v2026-11-25d</div>
 </div>
 
 <div id="title" class="ov show">
@@ -183,7 +183,7 @@ import * as THREE from 'three';
 
 // ================= 調整値 =================
 const CFG = {
-  version: 'v2026-11-25c',
+  version: 'v2026-11-25d',
   stops: 2,            // バス停の数（最後が終点）
   stopGap: 170,        // バス停の間隔 m
   startPad: 30,        // スタートから最初のバス停までの余白（stopGapに足す）
@@ -636,7 +636,7 @@ function renderActions(){
   if (G.state === 'ready') acts = ['depart'];
   else if (G.state === 'arrived') acts = ['open'];
   else if (G.state === 'doorOpenIdle') acts = ['close'];
-  else if (G.state === 'check') { if (!G.chk.r) acts.push('right'); if (!G.chk.l) acts.push('left'); }
+  else if (G.state === 'check') { if (!G.chk.l) acts.push('left'); if (!G.chk.r) acts.push('right'); } // 画面の左に「ひだりよし」、右に「みぎよし」
   $('action').innerHTML = acts.map(a => `<button class="bigbtn ${BTN[a][0]}" data-act="${a}">${BTN[a][1]}</button>`).join('');
   const drive = G.mode !== 'easy' && G.state === 'drive';
   $('pedals').style.display = drive ? 'block' : 'none'; $('pedals').classList.toggle('hard', G.mode === 'hard');
@@ -934,7 +934,7 @@ function howtoHTML(){
     ...(G.mode === 'hard' ? [['🛞', 'ハンドルに さわって くるっと まわそう。<br>カーブでは まがる ほうへ まわしてね。てを はなすと まっすぐに もどるよ。ひだりの しゃせんから はみださないように！']] : []),
     ['🚏', 'バスていの きいろい せんに ぴったり とめよう。⭐⭐⭐'],
     ['🔴', 'あかしんごうでは とまろう。'],
-    ['👆', 'とまったら ' + m('b-open','🚪あける') + ' → ' + m('b-close','🚪しめる') + ' → ' + m('b-chk','👉みぎよし') + m('b-chk','👈ひだりよし') + ' → ' + m('b-go','しゅっぱつ▶')],
+    ['👆', 'とまったら ' + m('b-open','🚪あける') + ' → ' + m('b-close','🚪しめる') + ' → ' + m('b-chk','👈ひだりよし') + m('b-chk','👉みぎよし') + ' → ' + m('b-go','しゅっぱつ▶')],
   ].map(([i, t]) => `<div class="st"><span>${t}</span></div>`).join(''); // 左のアイコンは表示しない
 }
 function openHowto(midGame){
