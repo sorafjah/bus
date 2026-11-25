@@ -120,7 +120,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
 </script>
 </head>
 <body>
-<!-- build: 2026-11-25 -->
+<!-- build: 2026-11-25b -->
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="pax">おきゃくさん <span id="paxN">0</span><div class="icons" id="paxIcons"></div></div>
@@ -138,7 +138,7 @@ body.hardmode #speed{bottom:auto;top:84px;left:auto;right:12px;transform:none;fo
     <button id="accel" class="pedal pe"><span class="pic">⬆️</span>アクセル</button>
   </div>
   <div id="speed"><span id="spd">0</span> <small>km/h</small></div>
-  <div id="ver">v2026-11-25</div>
+  <div id="ver">v2026-11-25b</div>
 </div>
 
 <div id="title" class="ov show">
@@ -183,7 +183,7 @@ import * as THREE from 'three';
 
 // ================= 調整値 =================
 const CFG = {
-  version: 'v2026-11-25',
+  version: 'v2026-11-25b',
   stops: 2,            // バス停の数（最後が終点）
   stopGap: 170,        // バス停の間隔 m
   startPad: 30,        // スタートから最初のバス停までの余白（stopGapに足す）
@@ -256,8 +256,8 @@ const YOMI = {
   'えきまえ':'駅前','しやくしょまえ':'市役所前','としょかんまえ':'図書館前','びょういんまえ':'病院前','ゆうびんきょくまえ':'郵便局前',
   'しょうてんがい':'商店街','スーパーまえ':'スーパー前','こうばんまえ':'交番前','ぶんかセンター':'文化センター','ほんやさんまえ':'本屋さん前',
   'みなと':'港','うみのえき':'海の駅','すいぞくかんまえ':'水族館前','かいがんどおり':'海岸通り','とうだいまえ':'灯台前',
-  'ヨットハーバー':'ヨットハーバー','つりばまえ':'釣り場前','すなはまこうえん':'砂浜公園',
-  'もりのいりぐち':'森の入口','たきまえ':'滝前','おんせんまえ':'温泉前','キャンプじょう':'キャンプ場','てんぼうだい':'展望台',
+  'ヨットハーバー':'ヨットハーバー','つりばまえ':'つりば前','すなはまこうえん':'砂浜公園',
+  'もりのいりぐち':'森の入り口','たきまえ':'たき前','おんせんまえ':'温泉前','キャンプじょう':'キャンプ場','てんぼうだい':'展望台',
   'ぼくじょうまえ':'牧場前','つりばし':'吊り橋','やまのうえ':'山の上',
   'まちなか せん':'まちなか線','うみぞい せん':'海沿い線','やまみち せん':'山道線',
 };
